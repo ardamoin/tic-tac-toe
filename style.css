@@ -20,6 +20,14 @@ body {
 
 }
 
+td {
+    height: 148px;
+    width: 148px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+}
+
 .footer {
     position: absolute;
     bottom: 0;
