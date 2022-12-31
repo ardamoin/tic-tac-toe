@@ -1,101 +1,80 @@
-/**
- * Board module to play on:
- *    Variables:
- *         - board array = array[9]
- *         - turn = Player X || Player O
- *    
- *    Functions:
- *         - Reset, clears board, params = none
- *         - CheckStatus, checks if someone won or the game is a draw, params = none
- *           
- *         - InsertChoice, inserts x or o in a selected position, params = Player.name, board.position
- *         - changeTurn, alternates turns between x and o;
- * 
- * 
- * Player object:
- *      Variables:
- *          - Name (x or o)
- *        
- * 
- * 
- */
+const cells = document.querySelector(".board").querySelectorAll("td");
+const playerTurn = document.querySelector(".turn");
+const restartBtn = document.querySelector(".restart");
+let currPlayer = "X";
 
 function equalityChecker(player, ...args) {
-    return args.every(val => val === player);
+    return args.every(val => val == player);
 }
 
-Array.prototype.select_elements = function(...indices) {
+const changeTurn = () => {
+    if (currPlayer === "X") {
+        currPlayer = "O";
+    } else if (currPlayer === "O") {
+        currPlayer = "X";
+    }
+}
+
+Array.prototype.select_elements = function(...args) {
     var elements = [];
-    for (var i=0; i != indices.length; ++i)
-        elements.push(this[indices[i]]);
+    for (var i=0; i != args.length; ++i)
+        elements.push(this[args[i]]);
     return elements;
 }
 
 
-const player = function(name) {
-    return {name};
-}
-
-const playerX = player("X");
-const playerO = player("O");
 
 const board = (function() {
-    let boardArray = new Array(9).fill(null);
-    let currPlayer = "X";
+    let boardArray = new Array(9).fill("");
 
     const reset = () => {
-        boardArray.fill(null);
+        boardArray.fill("");
     };
 
     const insertChoice = (player, position) => {
-        boardArray[position] = player.name;
-    }
-
-    const changeTurn = () => {
-        switch(currPlayer) {
-            case "X":
-                currPlayer = "O";
-                break;
-            case "O":
-                currPlayer = "X";
-                break;
-        }
+        boardArray[position] = player;
     }
 
     const checkWin = () => {
-        for (const cell of boardArray) {
-            if (cell == null) {
-                break;
-            } else {
-                return "Draw";
-            }
-        }
-
-        if (equalityChecker(currPlayer, ...boardArray.slice(0, 2)) || equalityChecker(currPlayer, ...boardArray.slice(3, 6)) || 
-        equalityChecker(currPlayer, ...boardArray.slice(-3)) || equalityChecker(currPlayer, boardArray.select_elements(0, 3, 6)) || 
-        equalityChecker(currPlayer, boardArray.select_elements(1, 4, 7)) || equalityChecker(currPlayer, boardArray.select_elements(2, 5, 8)) || 
-        equalityChecker(currPlayer, boardArray.select_elements(0, 4, 8)) || equalityChecker(currPlayer, boardArray.select_elements(2, 4, 6))) {
+        if (equalityChecker(currPlayer, ...boardArray.slice(0, 3)) || equalityChecker(currPlayer, ...boardArray.slice(3, 6)) || 
+        equalityChecker(currPlayer, ...boardArray.slice(-3)) || equalityChecker(currPlayer, ...boardArray.select_elements(0, 3, 6)) || 
+        equalityChecker(currPlayer, ...boardArray.select_elements(1, 4, 7)) || equalityChecker(currPlayer, ...boardArray.select_elements(2, 5, 8)) || 
+        equalityChecker(currPlayer, ...boardArray.select_elements(0, 4, 8)) || equalityChecker(currPlayer, ...boardArray.select_elements(2, 4, 6))) {
             return `${currPlayer} wins!`;
+
+        } else if (!boardArray.includes("")) {
+            return "Draw"
         }
 
-
-        /**
-         * win conditions:
-         * 0 1 2
-         * 3 4 5
-         * 6 7 8
-         * 
-         * 0 3 6
-         * 1 4 7
-         * 2 5 8
-         * 
-         * 0 4 8
-         * 2 4 6
-         */
-
-        
+        return "";
     }
 
 
-
+    return {boardArray, reset, insertChoice, checkWin};
 })();
+
+cells.forEach(cell => {
+    cell.addEventListener('click', function() {
+        
+
+        
+        if (this.textContent == "" && playerTurn !== "Draw" && !playerTurn.textContent.includes("wins")) {
+            this.textContent = currPlayer;
+            board.insertChoice(currPlayer, +this.className);
+            if (board.checkWin() !== "") {
+                playerTurn.textContent = board.checkWin();
+            } else {
+                changeTurn();
+                playerTurn.textContent = `Player ${currPlayer}'s turn`;
+            }
+            
+        }
+
+    })
+});
+
+restartBtn.addEventListener('click', () => {
+    board.reset();
+    Array.from(cells).map(cell => cell.textContent = "");
+    playerTurn.textContent = "Player X's turn";
+});
