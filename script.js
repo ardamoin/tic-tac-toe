@@ -77,4 +77,5 @@ restartBtn.addEventListener('click', () => {
     board.reset();
     Array.from(cells).map(cell => cell.textContent = "");
     playerTurn.textContent = "Player X's turn";
+    currPlayer = "X";
 });
